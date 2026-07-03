@@ -1,0 +1,56 @@
+/* Global CSS Variables - Premium Travel Agency */
+
+:root {
+  --primary: #0F766E;
+  --primary-hover: #115E59;
+  --secondary: #F59E0B;
+  --background: #FFFFFF;
+  --dark-bg: #08141B;
+  --light-gray: #F8FAFC;
+  --border: #E5E7EB;
+  --heading: #111827;
+  --paragraph: #6B7280;
+  --success: #16A34A;
+  --danger: #DC2626;
+  --shadow-soft: 0 4px 20px -2px rgba(8, 20, 27, 0.04), 0 2px 8px -1px rgba(8, 20, 27, 0.02);
+  --shadow-medium: 0 12px 30px -4px rgba(8, 20, 27, 0.08), 0 4px 12px -2px rgba(8, 20, 27, 0.03);
+  --shadow-glass: 0 8px 32px 0 rgba(8, 20, 27, 0.08);
+  --shadow-hover: 0 20px 40px -6px rgba(8, 20, 27, 0.12), 0 8px 16px -3px rgba(8, 20, 27, 0.04);
+  --container-width: 1320px;
+  --container-padding: 24px;
+  --gap: 32px;
+  --card-radius: 24px;
+  --button-radius: 14px;
+  --section-padding: 120px;
+  --fs-hero-title: 72px;
+  --fs-section-title: 48px;
+  --fs-heading:18px;
+  --fs-sub-heading: 26px;
+  --fs-card-title:24px;
+  --fs-body: 18px;
+  --fs-small: 16px;
+  --fs-caption: 14px;
+  --fs-button: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  :root {
+    --section-padding: 90px;
+    --fs-hero-title: 56px;
+    --fs-section-title: 40px;
+    --fs-heading: 18px;
+    --fs-body: 17px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --section-padding: 70px;
+    --fs-hero-title: 38px;
+    --fs-section-title: 30px;
+    --fs-heading:14px;
+    --fs-body: 13px;
+    --fs-small: 14px;
+  }
+}

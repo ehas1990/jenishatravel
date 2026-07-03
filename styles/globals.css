@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap');
+@import "tailwindcss";
+@import "./variables.css";
+
+@theme {
+  /* Color Mappings */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-dark-bg: var(--dark-bg);
+  --color-light-gray: var(--light-gray);
+  --color-heading: var(--heading);
+  --color-paragraph: var(--paragraph);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+
+  /* Font Mappings */
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Shadows */
+  --shadow-soft: var(--shadow-soft);
+  --shadow-medium: var(--shadow-medium);
+  --shadow-glass: var(--shadow-glass);
+  --shadow-hover: var(--shadow-hover);
+
+  /* Border Radii */
+  --radius-card: var(--card-radius);
+  --radius-btn: var(--button-radius);
+
+  /* Section Padding Mapping */
+  --spacing-section-pad: var(--section-padding);
+}
+
+/* Layer Base styling */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: var(--font-body);
+    background-color: var(--background);
+    color: var(--paragraph);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--heading);
+    font-weight: 700;
+  }
+}
+
+/* Typography Utility Classes to avoid inline repeats */
+.text-hero-title {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--fs-hero-title);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.text-section-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-section-title);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.text-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-heading);
+  line-height: 1.3;
+}
+
+.text-sub-heading {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--fs-sub-heading);
+  line-height: 1.4;
+}
+
+.text-card-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--fs-card-title);
+  line-height: 1.4;
+  color: #FFFFFF;
+}
+
+.text-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+
+.text-small {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--fs-caption);
+  line-height: 1.4;
+}
+
+/* Custom UI Components and Glassmorphism */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.glass-dark-effect {
+  background: rgba(8, 20, 27, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom Scrollbar for Premium Feel */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--light-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 5px;
+  border: 2px solid var(--light-gray);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Responsive container styles */
+.app-container {
+  max-width: var(--container-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+/* Section vertical padding */
+.section-pad {
+  padding-top: var(--section-padding);
+  padding-bottom: var(--section-padding);
+}
