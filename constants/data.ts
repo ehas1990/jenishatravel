@@ -7,7 +7,7 @@ export const DESTINATIONS: Destination[] = [
     slug: 'kerala',
     image: '/kerala.jpg',
     description: 'Explore misty mountains and lush tea plantations in Munnar, and float on the serene Alleppey backwaters in a premium luxury houseboat.',
-    country: 'India',
+    country: 'Kerala',
     featured: true,
     popular: true,
     attractionsCount: 15,
@@ -23,7 +23,7 @@ export const DESTINATIONS: Destination[] = [
     slug: 'tamil-nadu',
     image: '/tamilnadu.jpg',
     description: 'Marvel at the ancient architecture of Meenakshi Temple in Madurai and enjoy the cool tea estates and Nilgiri toy train ride in Ooty.',
-    country: 'India',
+    country: 'Tamil Nadu',
     featured: true,
     popular: true,
     attractionsCount: 18,
@@ -38,7 +38,7 @@ export const DESTINATIONS: Destination[] = [
     slug: 'kashmir',
     image: '/kashmir.jpg',
     description: 'Glide on Dal Lake in a luxury shikara, stay in premium wooden houseboats, and view snow-covered Himalayan peaks, pine forests, and vibrant tulip gardens.',
-    country: 'India',
+    country: 'Kashmir',
     featured: true,
     popular: true,
     attractionsCount: 20,
@@ -49,47 +49,47 @@ export const DESTINATIONS: Destination[] = [
   },
   {
     id: 'dest-4',
-    title: 'Bali, Indonesia',
-    slug: 'bali-indonesia',
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=800',
-    description: 'Find peace and adventure in the Island of the Gods. Explore lush rice terraces, ancient sea temples, volcanic hikes, and world-class surfing beaches.',
-    country: 'Indonesia',
-    featured: false,
+    title: 'Jaipur, Udaipur & Jaisalmer, Rajasthan',
+    slug: 'rajasthan',
+    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=800',
+    description: 'Live like royalty. Stay in authentic palace hotels, explore massive hilltop forts in Jaipur, take a private boat cruise on Lake Pichola in Udaipur, and experience a luxury desert camp in Jaisalmer.',
+    country: 'Rajasthan',
+    featured: true,
     popular: true,
-    attractionsCount: 30,
-    activities: ['Surfing', 'Yoga & Wellness', 'Rice Terrace Hikes', 'Temple Blessings'],
+    attractionsCount: 22,
+    activities: ['Palace Tour', 'Desert Safari', 'Lake Cruise', 'Royal Feast'],
     faqs: [
-      { question: 'Do I need a visa for Bali?', answer: 'Many nationalities can obtain a Visa on Arrival (VoA) valid for 30 days, which can be extended once.' }
+      { question: 'When is the best season to visit Rajasthan?', answer: 'The cooler months from October to March are perfect for sightseeing. Summers can get extremely hot.' }
     ]
   },
   {
     id: 'dest-5',
-    title: 'Swiss Alps, Switzerland',
-    slug: 'swiss-alps',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800',
-    description: 'Savor breathtaking Alpine heights, pristine glacier lakes, luxury ski chalets, and scenic cogwheel train journeys through snow-capped valleys.',
-    country: 'Switzerland',
+    title: 'North & South Goa, Goa',
+    slug: 'goa',
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800',
+    description: 'Relax on quiet white-sand beaches, rejuvenate at luxury wellness resorts, charter private yachts on the Arabian Sea, and walk through colorful heritage quarters.',
+    country: 'Goa',
     featured: true,
-    popular: false,
-    attractionsCount: 15,
-    activities: ['Alpine Skiing', 'Panoramic Train Ride', 'Paragliding', 'Chocolate Tasting'],
+    popular: true,
+    attractionsCount: 16,
+    activities: ['Yacht Charter', 'Spices Plantation Tour', 'Beach Yoga', 'Heritage Walk'],
     faqs: [
-      { question: 'What is the Swiss Travel Pass?', answer: 'It is an all-in-one ticket that gives visitors unlimited access to the Swiss Travel System (trains, buses, and boats).' }
+      { question: 'Is Goa suitable for luxury wellness retreats?', answer: 'Yes, South Goa is world-renowned for high-end boutique wellness resorts, private beaches, and premium Ayurvedic spas.' }
     ]
   },
   {
     id: 'dest-6',
-    title: 'Paris, France',
-    slug: 'paris-france',
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=800',
-    description: 'The global capital of art, fashion, gastronomy, and culture. Stroll down broad avenues, admire world-famous museums, and dine on fine French cuisine.',
-    country: 'France',
-    featured: false,
+    title: 'Leh & Nubra Valley, Ladakh',
+    slug: 'ladakh',
+    image: 'https://images.unsplash.com/photo-1596895567557-9a593a1a3fb9?q=80&w=800',
+    description: 'Explore high-altitude desert landscapes, ancient cliffside monasteries, double-humped camel safaris in Nubra Valley, and the deep blue waters of Pangong Tso Lake.',
+    country: 'Ladakh',
+    featured: true,
     popular: true,
-    attractionsCount: 25,
-    activities: ['Museum Visits', 'Seine River Cruise', 'Gourmet Cooking Class', 'Fashion Walk'],
+    attractionsCount: 14,
+    activities: ['Monastery Trekking', 'Bactrian Camel Ride', 'High Pass Driving', 'Lakeside Camping'],
     faqs: [
-      { question: 'Is the Louvre closed on certain days?', answer: 'Yes, the Louvre Museum is closed every Tuesday, and booking a time slot in advance is highly recommended.' }
+      { question: 'How do I avoid altitude sickness in Ladakh?', answer: 'Rest completely for the first 24 to 48 hours in Leh to allow your body to acclimate to the high altitude (11,500 feet).' }
     ]
   }
 ];
@@ -106,7 +106,7 @@ export const PACKAGES: TravelPackage[] = [
     reviewsCount: 42,
     duration: '6 Days / 5 Nights',
     location: 'Munnar & Alleppey',
-    country: 'India',
+    country: 'Kerala',
     category: 'nature',
     featured: true,
     images: [
@@ -153,7 +153,7 @@ export const PACKAGES: TravelPackage[] = [
     reviewsCount: 36,
     duration: '7 Days / 6 Nights',
     location: 'Madurai & Ooty',
-    country: 'India',
+    country: 'Tamil Nadu',
     category: 'cultural',
     featured: true,
     images: [
@@ -202,7 +202,7 @@ export const PACKAGES: TravelPackage[] = [
     reviewsCount: 50,
     duration: '6 Days / 5 Nights',
     location: 'Srinagar & Gulmarg',
-    country: 'India',
+    country: 'Kashmir',
     category: 'adventure',
     featured: true,
     images: [
@@ -249,7 +249,7 @@ export const PACKAGES: TravelPackage[] = [
     reviewsCount: 28,
     duration: '8 Days / 7 Nights',
     location: 'Jaipur, Udaipur & Jaisalmer',
-    country: 'India',
+    country: 'Rajasthan',
     category: 'luxury',
     featured: false,
     images: [
@@ -298,7 +298,7 @@ export const PACKAGES: TravelPackage[] = [
     reviewsCount: 22,
     duration: '5 Days / 4 Nights',
     location: 'North & South Goa',
-    country: 'India',
+    country: 'Goa',
     category: 'luxury',
     featured: false,
     images: [
