@@ -11,8 +11,17 @@ export default function Hero() {
     <section className="relative min-h-[90vh] lg:min-h-screen flex flex-col justify-between overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-20">
       {/* Background Image with Zoom (Ken Burns) Effect */}
       <div className="absolute inset-0 z-0">
+        {/* Mobile portrait background */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 animate-[pulse-slow_20s_infinite_alternate]"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 md:hidden"
+          style={{ 
+            backgroundImage: 'url("/mobile-jen.jpg")',
+            animationName: 'kenburns'
+          }}
+        />
+        {/* Desktop landscape background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 hidden md:block"
           style={{ 
             backgroundImage: 'url("/hero-banner.jpg")',
             animationName: 'kenburns'
