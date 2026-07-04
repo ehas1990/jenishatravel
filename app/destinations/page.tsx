@@ -6,7 +6,7 @@ import { Search, Compass, Map, HelpCircle } from 'lucide-react';
 import Container from '@/components/layout/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Button from '@/components/ui/Button';
-import DestinationCard from '@/components/destinations/DestinationCard';
+import DestinationsGrid from '@/components/destinations/DestinationsGrid';
 import Accordion from '@/components/ui/Accordion';
 import { DESTINATIONS } from '@/constants/data';
 
@@ -80,11 +80,10 @@ function DestinationsPageContent() {
       <section className="section-pad">
         <Container>
           {filteredDestinations.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredDestinations.map((dest) => (
-                <DestinationCard key={dest.id} destination={dest} />
-              ))}
-            </div>
+            <DestinationsGrid
+              destinations={filteredDestinations}
+              className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            />
           ) : (
             <div className="text-center py-16 space-y-4">
               <Compass className="w-16 h-16 text-slate-300 mx-auto animate-pulse" />

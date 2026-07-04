@@ -7,14 +7,14 @@ import Testimonials from '@/components/home/Testimonials';
 import Container from '@/components/layout/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Button from '@/components/ui/Button';
-import DestinationCard from '@/components/destinations/DestinationCard';
+import DestinationsGrid from '@/components/destinations/DestinationsGrid';
 import PackageCard from '@/components/packages/PackageCard';
 import Card from '@/components/ui/Card';
 import { DESTINATIONS, PACKAGES } from '@/constants/data';
 
 export default function Home() {
   // Get featured items
-  const featuredDestinations = DESTINATIONS.filter((d) => d.featured).slice(0, 3);
+  const featuredDestinations = DESTINATIONS.filter((d) => d.featured).slice(0, 2);
   const featuredPackages = PACKAGES.filter((p) => p.featured).slice(0, 3);
 
   return (
@@ -32,11 +32,10 @@ export default function Home() {
             subtitle="Explore our selection of the world's most exquisite and visually stunning locations, curated for luxury enthusiasts."
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredDestinations.map((destination) => (
-              <DestinationCard key={destination.id} destination={destination} />
-            ))}
-          </div>
+          <DestinationsGrid
+            destinations={featuredDestinations}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          />
 
           <div className="text-center mt-12">
             <Link href="/destinations">
