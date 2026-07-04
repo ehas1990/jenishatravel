@@ -129,11 +129,6 @@ export default function Footer() {
           <p className="text-slate-500 text-caption text-center sm:text-left">
             © 2026 VistaLuxe Travel. Crafted for premium experiences. All rights reserved.
           </p>
-          <div className="flex space-x-6 text-caption text-slate-500">
-            <a href="#" className="hover:text-slate-400 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-slate-400 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-slate-400 transition-colors">Sitemap</a>
-          </div>
         </div>
       </Container>
     </footer>
