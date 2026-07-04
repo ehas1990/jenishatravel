@@ -21,10 +21,10 @@ export default function Footer() {
   return (
     <footer className="bg-dark-bg text-white pt-24 pb-12 border-t border-white/5">
       <Container>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 pb-16 border-b border-white/10">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 pb-16 border-b border-white/10">
           
           {/* Brand Column */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="col-span-2 md:col-span-1 lg:col-span-4 space-y-6">
             <Link href="/" className="flex items-center space-x-2">
               <div className="bg-primary p-2.5 rounded-xl text-white">
                 <Compass className="w-6 h-6" />
@@ -53,7 +53,7 @@ export default function Footer() {
           </div>
 
           {/* Destinations Column */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="col-span-1 md:col-span-1 lg:col-span-2 space-y-6">
             <h4 className="font-heading font-bold text-white text-[18px] tracking-wide">
               Destinations
             </h4>
@@ -75,7 +75,7 @@ export default function Footer() {
           </div>
 
           {/* Quick Links Column */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="col-span-1 md:col-span-1 lg:col-span-2 space-y-6">
             <h4 className="font-heading font-bold text-white text-[18px] tracking-wide">
               Quick Links
             </h4>
@@ -95,7 +95,7 @@ export default function Footer() {
           </div>
 
           {/* Newsletter Column */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="col-span-2 md:col-span-1 lg:col-span-4 space-y-6">
             <h4 className="font-heading font-bold text-white text-[18px] tracking-wide">
               Join Our Newsletter
             </h4>
