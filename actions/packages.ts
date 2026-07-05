@@ -169,6 +169,7 @@ export async function getPackages(params: {
         limit,
         totalPages: Math.ceil(total / limit),
       },
+      error: undefined as string | undefined
     };
   } catch (error) {
     console.warn("Failed to fetch packages from database, using offline fallback:", error instanceof Error ? error.message : error);
@@ -223,6 +224,7 @@ export async function getPackages(params: {
         limit,
         totalPages: Math.ceil(total / limit),
       },
+      error: (error instanceof Error ? error.message : "Failed to fetch packages") as string | undefined
     };
   }
 }
@@ -309,6 +311,7 @@ export async function createPackage(
       if (dest) destinationName = dest.name;
     } catch (_) {}
 
+    const slug = generateSlug(data.name);
     const newPkg = {
       id: "pkg-" + Date.now(),
       name: data.name,
@@ -424,6 +427,7 @@ export async function updatePackage(
         if (dest) destinationName = dest.name;
       } catch (_) {}
 
+      const slug = generateSlug(data.name);
       const updated = {
         ...offlinePackages[index],
         name: data.name,
@@ -528,7 +532,7 @@ export async function exportPackagesCSV() {
     ]);
 
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    return { success: true, data: csvContent };
+    return { success: true, data: csvContent, error: undefined as string | undefined };
   } catch (error) {
     console.warn("Failed to export packages CSV from DB, using offline fallback:", error instanceof Error ? error.message : error);
 
@@ -559,6 +563,6 @@ export async function exportPackagesCSV() {
     ]);
 
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    return { success: true, data: csvContent };
+    return { success: true, data: csvContent, error: undefined as string | undefined };
   }
 }

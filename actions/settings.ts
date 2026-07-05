@@ -75,10 +75,10 @@ export async function updateSettings(
     });
 
     revalidatePath("/admin/settings");
-    return { success: true };
+    return { success: true, error: undefined as string | undefined };
   } catch (error) {
     console.warn("Failed to update settings in DB, using offline fallback:", error instanceof Error ? error.message : error);
-    return { success: true }; // Allow UI to proceed in offline/mock mode
+    return { success: true, error: undefined as string | undefined };
   }
 }
 
