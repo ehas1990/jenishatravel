@@ -1,7 +1,7 @@
 'use server';
 
 import { signIn, signOut } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDbAvailable } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
@@ -48,6 +48,9 @@ export async function forgotPasswordAction(email: string) {
   if (!email) return { error: "Email is required" };
 
   try {
+    if (!(await isDbAvailable())) {
+      throw new Error("Database connection is offline");
+    }
     // Check if user or admin exists
     const user = await prisma.user.findUnique({ where: { email } });
     const admin = await prisma.admin.findUnique({ where: { email } });
@@ -82,6 +85,9 @@ export async function resetPasswordAction(token: string, password: string) {
   if (!token || !password) return { error: "Token and password are required" };
 
   try {
+    if (!(await isDbAvailable())) {
+      throw new Error("Database connection is offline");
+    }
     // Mimicking token validation
     // In production, decode JWT reset token, find user, update password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -111,6 +117,9 @@ export async function changePasswordAction(userId: string, oldPassword: string, 
   }
 
   try {
+    if (!(await isDbAvailable())) {
+      throw new Error("Database connection is offline");
+    }
     // Check standard User
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (user) {

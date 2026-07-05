@@ -1,6 +1,6 @@
 'use server';
 
-import { prisma } from "@/lib/prisma";
+import { prisma, isDbAvailable } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { Status } from "@prisma/client";
 import { generateSlug } from "@/utils/slug";
@@ -112,6 +112,9 @@ export async function getDestinations(params: {
   }
 
   try {
+    if (!(await isDbAvailable())) {
+      throw new Error("Database connection is offline");
+    }
     const [destinations, total] = await Promise.all([
       prisma.destination.findMany({
         where,
@@ -138,7 +141,7 @@ export async function getDestinations(params: {
       error: undefined as string | undefined
     };
   } catch (error: any) {
-    console.error("Failed to fetch destinations from database, using offline fallback:", error);
+    console.warn("Failed to fetch destinations from database, using offline fallback:", error instanceof Error ? error.message : error);
 
     // Offline filter simulation
     let filtered = [...offlineDestinations];
@@ -207,6 +210,9 @@ export async function createDestination(
   const slug = generateSlug(data.name);
 
   try {
+    if (!(await isDbAvailable())) {
+      throw new Error("Database connection is offline");
+    }
     // Verify unique slug
     const existing = await prisma.destination.findUnique({
       where: { slug },
@@ -248,7 +254,7 @@ export async function createDestination(
     revalidatePath("/destinations");
     return { success: true, destination: newDest };
   } catch (error: any) {
-    console.error("Failed to create destination in DB, using offline fallback:", error);
+    console.warn("Failed to create destination in DB, using offline fallback:", error instanceof Error ? error.message : error);
 
     const existingOffline = offlineDestinations.find((d) => d.slug === slug);
     if (existingOffline) {
@@ -300,6 +306,9 @@ export async function updateDestination(
   const slug = generateSlug(data.name);
 
   try {
+    if (!(await isDbAvailable())) {
+      throw new Error("Database connection is offline");
+    }
     // Verify unique slug
     const existing = await prisma.destination.findUnique({
       where: { slug },
@@ -343,7 +352,7 @@ export async function updateDestination(
     revalidatePath("/destinations");
     return { success: true, destination: updatedDest };
   } catch (error) {
-    console.error("Failed to update destination in DB, using offline fallback:", error);
+    console.warn("Failed to update destination in DB, using offline fallback:", error instanceof Error ? error.message : error);
 
     const existingOffline = offlineDestinations.find((d) => d.slug === slug && d.id !== destId);
     if (existingOffline) {
@@ -379,6 +388,9 @@ export async function updateDestination(
 
 export async function deleteDestination(adminId: string, destId: string) {
   try {
+    if (!(await isDbAvailable())) {
+      throw new Error("Database connection is offline");
+    }
     const deletedDest = await prisma.destination.delete({
       where: { id: destId },
     });
@@ -398,7 +410,7 @@ export async function deleteDestination(adminId: string, destId: string) {
     revalidatePath("/destinations");
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete destination in DB, using offline fallback:", error);
+    console.warn("Failed to delete destination in DB, using offline fallback:", error instanceof Error ? error.message : error);
 
     const index = offlineDestinations.findIndex((d) => d.id === destId);
     if (index !== -1) {
@@ -413,6 +425,9 @@ export async function deleteDestination(adminId: string, destId: string) {
 // Fetch all active destinations for select dropdowns
 export async function getActiveDestinationsDropdown() {
   try {
+    if (!(await isDbAvailable())) {
+      throw new Error("Database connection is offline");
+    }
     const destinations = await prisma.destination.findMany({
       where: { status: "ACTIVE" },
       select: {
@@ -423,7 +438,7 @@ export async function getActiveDestinationsDropdown() {
     });
     return { success: true, destinations };
   } catch (error) {
-    console.error("Failed to fetch destinations dropdown, using offline fallback:", error);
+    console.warn("Failed to fetch destinations dropdown, using offline fallback:", error instanceof Error ? error.message : error);
     const destinations = offlineDestinations
       .filter(d => d.status === "ACTIVE")
       .map(d => ({ id: d.id, name: d.name }))

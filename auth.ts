@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDbAvailable } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -20,6 +20,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials.password as string;
 
         try {
+          if (!(await isDbAvailable())) {
+            throw new Error("Database connection is offline");
+          }
           // First look in Admin table (superadmin)
           const admin = await prisma.admin.findUnique({
             where: { email }
@@ -62,7 +65,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
           }
         } catch (dbError) {
-          console.error("Database connection failed, using local offline fallback credentials:", dbError);
+          console.warn("Database connection failed, using local offline fallback credentials:", dbError instanceof Error ? dbError.message : dbError);
           // Fallback bypass: Allow login if the email/password matches the default seed
           if (email === "admin@vista.luxe" && password === "admin") {
             return {
