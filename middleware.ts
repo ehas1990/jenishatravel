@@ -1,5 +1,8 @@
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
 import { NextResponse } from "next/server";
+
+const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
@@ -35,8 +38,6 @@ export default auth((req) => {
     }
 
     // Role-based verification: Only ADMIN, EDITOR, and STAFF can access the dashboard.
-    // The prompt says "Only Admin can access dashboard" for general access, but under
-    // roles it lists: Admin, Editor, Staff. We will allow all three but enforce page level permissions if needed.
     const userRole = req.auth?.user?.role;
     if (!userRole || (userRole !== "ADMIN" && userRole !== "EDITOR" && userRole !== "STAFF")) {
       return NextResponse.redirect(new URL("/", nextUrl));
@@ -46,7 +47,7 @@ export default auth((req) => {
   return NextResponse.next();
 });
 
-// Matches all paths except Next.js internals, static files, and icons
+// Matches only admin routes to minimize edge function execution footprint and bundle size.
 export const config = {
-  matcher: ["/((?!api/public|_next/static|_next/image|images|uploads|favicon.ico|robots.txt|sitemap.xml).*)"],
+  matcher: ["/admin/:path*"],
 };

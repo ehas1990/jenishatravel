@@ -2,8 +2,10 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma, isDbAvailable } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       name: "Credentials",
@@ -83,42 +85,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return null;
       }
     })
-  ],
-  callbacks: {
-    async jwt({ token, user, trigger, session }) {
-      if (user) {
-        token.id = user.id as string;
-        token.role = (user as any).role;
-        token.status = (user as any).status;
-      }
-      
-      // Support session updates for profile modifications
-      if (trigger === "update" && session) {
-        token.name = session.name || token.name;
-        token.picture = session.picture || token.picture;
-        if (session.role) token.role = session.role;
-      }
-      
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-        session.user.status = token.status as string;
-        if (token.name) session.user.name = token.name;
-        if (token.picture) session.user.image = token.picture;
-      }
-      return session;
-    }
-  },
-  pages: {
-    signIn: "/admin/login",
-    error: "/admin/login"
-  },
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  secret: process.env.NEXTAUTH_SECRET
+  ]
 });
