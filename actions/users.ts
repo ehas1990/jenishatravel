@@ -109,13 +109,22 @@ export async function createUser(
     });
 
     // Log Activity
-    await prisma.activityLog.create({
-      data: {
-        userId: adminId,
-        action: "Create User",
-        details: `Created user ${newUser.email} with role ${newUser.role}`,
-      },
-    });
+    try {
+      const adminExists = adminId ? await prisma.user.findUnique({
+        where: { id: adminId },
+        select: { id: true },
+      }) : null;
+
+      await prisma.activityLog.create({
+        data: {
+          userId: adminExists ? adminId : null,
+          action: "Create User",
+          details: `Created user ${newUser.email} with role ${newUser.role}`,
+        },
+      });
+    } catch (logError) {
+      console.error("Failed to log activity:", logError);
+    }
 
     revalidatePath("/admin/users");
     return { success: true, user: newUser };
@@ -170,13 +179,22 @@ export async function updateUser(
     });
 
     // Log Activity
-    await prisma.activityLog.create({
-      data: {
-        userId: adminId,
-        action: "Update User",
-        details: `Updated user profile for ${updatedUser.email}`,
-      },
-    });
+    try {
+      const adminExists = adminId ? await prisma.user.findUnique({
+        where: { id: adminId },
+        select: { id: true },
+      }) : null;
+
+      await prisma.activityLog.create({
+        data: {
+          userId: adminExists ? adminId : null,
+          action: "Update User",
+          details: `Updated user profile for ${updatedUser.email}`,
+        },
+      });
+    } catch (logError) {
+      console.error("Failed to log activity:", logError);
+    }
 
     revalidatePath("/admin/users");
     return { success: true, user: updatedUser };
@@ -198,13 +216,22 @@ export async function deleteUser(adminId: string, deleteId: string) {
     });
 
     // Log Activity
-    await prisma.activityLog.create({
-      data: {
-        userId: adminId,
-        action: "Delete User",
-        details: `Deleted user ${deletedUser.email}`,
-      },
-    });
+    try {
+      const adminExists = adminId ? await prisma.user.findUnique({
+        where: { id: adminId },
+        select: { id: true },
+      }) : null;
+
+      await prisma.activityLog.create({
+        data: {
+          userId: adminExists ? adminId : null,
+          action: "Delete User",
+          details: `Deleted user ${deletedUser.email}`,
+        },
+      });
+    } catch (logError) {
+      console.error("Failed to log activity:", logError);
+    }
 
     revalidatePath("/admin/users");
     return { success: true };
