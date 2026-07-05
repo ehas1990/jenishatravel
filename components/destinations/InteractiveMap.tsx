@@ -1,15 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Compass, Search, Navigation, Info, ArrowRight, ShieldAlert } from 'lucide-react';
-import { DESTINATIONS } from '@/constants/data';
-import { Destination } from '@/types';
+import { Compass, Navigation, ArrowRight, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Button from '../ui/Button';
 
 interface InteractiveMapProps {
   selectedCountry: string;
   onSelectCountry: (country: string) => void;
+  destinations: any[];
 }
 
 interface MapPinInfo {
@@ -30,7 +29,7 @@ const MAP_PINS: MapPinInfo[] = [
   { slug: 'tamil-nadu', name: 'Tamil Nadu', x: 185, y: 420, lat: '11.1271° N', lng: '78.6569° E' }
 ];
 
-export default function InteractiveMap({ selectedCountry, onSelectCountry }: InteractiveMapProps) {
+export default function InteractiveMap({ selectedCountry, onSelectCountry, destinations }: InteractiveMapProps) {
   const [activeSlug, setActiveSlug] = useState<string>('kerala');
   const [isScanning, setIsScanning] = useState(false);
   const [scanText, setScanText] = useState('');
@@ -40,22 +39,51 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
   const mapRef = useRef<HTMLDivElement>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const activeDestination = DESTINATIONS.find(d => d.slug === activeSlug) || DESTINATIONS[0];
-  const activePin = MAP_PINS.find(p => p.slug === activeSlug);
+
+  // Find dynamic destination based on slug, state, or country matches
+  const activeDestination = destinations.find(d => 
+    d.slug === activeSlug || 
+    (d.state && d.state.toLowerCase() === activeSlug.toLowerCase()) ||
+    d.country.toLowerCase() === activeSlug.toLowerCase()
+  ) || destinations[0];
+
+  // Dynamic image source with fallback support
+  // eslint-disable-next-line react-hooks-rules-of-hooks
+  const [panelImgSrc, setPanelImgSrc] = useState(activeDestination?.bannerImage || '/hero-banner.jpg');
+
+  // eslint-disable-next-line react-hooks-rules-of-hooks
+  useEffect(() => {
+    if (activeDestination) {
+      setPanelImgSrc(activeDestination.bannerImage || '/hero-banner.jpg');
+    }
+  }, [activeDestination]);
 
   // Sync active destination with parent selected country if it changes
+  // eslint-disable-next-line react-hooks-rules-of-hooks
   useEffect(() => {
     if (selectedCountry && selectedCountry !== 'All') {
-      const matched = DESTINATIONS.find(d => d.country.toLowerCase() === selectedCountry.toLowerCase());
+      const matched = destinations.find(d => 
+        d.country.toLowerCase() === selectedCountry.toLowerCase() ||
+        (d.state && d.state.toLowerCase() === selectedCountry.toLowerCase())
+      );
       if (matched) {
         setActiveSlug(matched.slug);
       }
     }
-  }, [selectedCountry]);
+  }, [selectedCountry, destinations]);
+
+  // Filter map pins to dynamically show pins for which active database records exist
+  const activePins = MAP_PINS.filter(pin => 
+    destinations.some(d => 
+      d.slug === pin.slug || 
+      (d.state && d.state.toLowerCase() === pin.slug.toLowerCase()) || 
+      d.country.toLowerCase() === pin.slug.toLowerCase()
+    )
+  );
 
   // Handle GPS Scan / Geolocation simulation
   const handleGPSActive = () => {
-    if (isScanning) return;
+    if (isScanning || activePins.length === 0) return;
     setIsScanning(true);
     setIsLocating(true);
     setScanText('INITIALIZING SECURE SAT-LINK...');
@@ -67,7 +95,7 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
 
     scanIntervalRef.current = setInterval(() => {
       // Rotate active pin rapidly to simulate scanning
-      const tempPin = MAP_PINS[counter % MAP_PINS.length];
+      const tempPin = activePins[counter % activePins.length];
       setActiveSlug(tempPin.slug);
       setScanCoords({
         lat: `${(Math.random() * 20 + 10).toFixed(4)}° N`,
@@ -80,8 +108,8 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
         if (scanIntervalRef.current) clearInterval(scanIntervalRef.current);
         
         // Finalize scanning and select a random destination
-        const randomIndex = Math.floor(Math.random() * MAP_PINS.length);
-        const finalPin = MAP_PINS[randomIndex];
+        const randomIndex = Math.floor(Math.random() * activePins.length);
+        const finalPin = activePins[randomIndex];
         setActiveSlug(finalPin.slug);
         setScanCoords({ lat: finalPin.lat, lng: finalPin.lng });
         setIsScanning(false);
@@ -93,20 +121,17 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
           navigator.geolocation.getCurrentPosition(
             (position) => {
               const { latitude, longitude } = position.coords;
-              // Map rough India coordinates to our 420x500 box
-              // India boundaries roughly: Lat 8N to 37N, Lng 68E to 97E
               const mapX = ((longitude - 68) / (97 - 68)) * 340 + 40;
               const mapY = 500 - (((latitude - 8) / (37 - 8)) * 380 + 50);
 
               if (mapX >= 0 && mapX <= 420 && mapY >= 0 && mapY <= 500) {
                 setGeoLoc({ x: mapX, y: mapY, label: 'YOU (GPS)' });
               } else {
-                // If user is outside India, place at a premium "Global Gateway" base at the bottom
                 setGeoLoc({ x: 190, y: 460, label: 'YOU (GATEWAY)' });
               }
             },
             () => {
-              // Permission denied/error: no geo pin added
+              // Permission denied/error
             }
           );
         }
@@ -114,11 +139,28 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
     }, intervalTime);
   };
 
+  // eslint-disable-next-line react-hooks-rules-of-hooks
   useEffect(() => {
     return () => {
       if (scanIntervalRef.current) clearInterval(scanIntervalRef.current);
     };
   }, []);
+
+  // Render empty state if no destinations exist
+  if (!destinations || destinations.length === 0) {
+    return (
+      <div className="w-full aspect-[16/10.5] md:aspect-[16/10] bg-dark-bg rounded-[32px] overflow-hidden relative shadow-medium border border-white/10 flex items-center justify-center text-white p-6 select-none animate-fadeIn">
+        <div className="absolute inset-0 bg-[radial-gradient(#115e59_1px,transparent_1px)] [background-size:16px_16px] opacity-10 pointer-events-none" />
+        <div className="text-center p-8 space-y-4 max-w-sm relative z-10">
+          <ShieldAlert className="w-12 h-12 text-secondary/80 mx-auto animate-pulse" />
+          <h3 className="text-[18px] font-bold text-white">No destinations available.</h3>
+          <p className="text-[13px] text-slate-400 font-normal">
+            Please register active sectors in the administrator control panel.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handlePinClick = (slug: string) => {
     setActiveSlug(slug);
@@ -131,7 +173,6 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
   const handleFilterClick = () => {
     if (activeDestination) {
       onSelectCountry(activeDestination.country);
-      // Scroll smoothly to destinations grid
       const gridSection = document.getElementById('destinations-grid-section');
       if (gridSection) {
         gridSection.scrollIntoView({ behavior: 'smooth' });
@@ -197,6 +238,14 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
             {/* Glowing Interactive Pins */}
             {MAP_PINS.map((pin) => {
               const isSelected = pin.slug === activeSlug;
+              const hasDest = destinations.some(d => 
+                d.slug === pin.slug || 
+                (d.state && d.state.toLowerCase() === pin.slug.toLowerCase()) || 
+                d.country.toLowerCase() === pin.slug.toLowerCase()
+              );
+              
+              if (!hasDest) return null; // Hide pin if no corresponding active database record exists
+
               return (
                 <g 
                   key={pin.slug}
@@ -250,10 +299,10 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
                 <span>Logistics Sat-Link</span>
               </span>
               <h4 className="font-heading font-extrabold text-[15px] text-white">
-                {isScanning ? 'SCANNING COORDINATES...' : `${activeDestination.country.toUpperCase()} SECTOR`}
+                {isScanning ? 'SCANNING COORDINATES...' : `${activeDestination?.country.toUpperCase()} SECTOR`}
               </h4>
             </div>
-            <div className="text-right">
+            <div className="text-right text-white">
               <span className="text-[11px] font-mono text-secondary font-bold block">{scanCoords.lat}</span>
               <span className="text-[11px] font-mono text-secondary font-bold block">{scanCoords.lng}</span>
             </div>
@@ -272,19 +321,21 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
                   <p className="text-[10px] text-slate-400 font-normal">Syncing high-frequency beacons...</p>
                 </div>
               </div>
-            ) : (
+            ) : activeDestination ? (
               <div className="space-y-4 animate-fadeIn">
                 {/* Destination Image Crop */}
                 <div className="w-full h-32 rounded-xl overflow-hidden relative border border-white/10 shadow-soft">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
-                    src={activeDestination.image} 
-                    alt={activeDestination.title} 
+                    src={panelImgSrc} 
+                    alt={activeDestination.name} 
+                    onError={() => setPanelImgSrc('/hero-banner.jpg')}
                     className="w-full h-full object-cover" 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-dark-bg/10 to-transparent" />
                   <div className="absolute bottom-2.5 left-3">
-                    <span className="text-[10px] bg-secondary text-dark-bg font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                      {activeDestination.attractionsCount} Attractions
+                    <span className="text-[10.5px] bg-secondary text-dark-bg font-bold px-3 py-1 rounded-full uppercase tracking-wider block">
+                      {activeDestination.bestTimeToVisit || 'Best Time Not Available'}
                     </span>
                   </div>
                 </div>
@@ -292,49 +343,21 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
                 {/* Title and Short description */}
                 <div className="space-y-1.5">
                   <h3 className="font-heading font-bold text-[18px] text-white leading-tight">
-                    {activeDestination.title}
+                    {activeDestination.name}
                   </h3>
+                  <p className="text-[11px] text-slate-400 font-mono tracking-widest uppercase">
+                    {activeDestination.state ? `${activeDestination.state}, ${activeDestination.country}` : activeDestination.country}
+                  </p>
                   <p className="text-caption text-slate-300 font-normal line-clamp-3 leading-relaxed">
-                    {activeDestination.description}
+                    {activeDestination.shortDescription}
                   </p>
                 </div>
 
-                {/* Activities Row */}
-                <div className="space-y-1">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Activities Included:</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {activeDestination.activities.slice(0, 3).map((act, idx) => (
-                      <span 
-                        key={idx} 
-                        className="text-[10px] bg-white/10 border border-white/15 px-2 py-0.5 rounded-md font-semibold text-slate-200"
-                      >
-                        {act}
-                      </span>
-                    ))}
-                    {activeDestination.activities.length > 3 && (
-                      <span className="text-[10px] text-secondary font-bold pl-1">
-                        +{activeDestination.activities.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
               </div>
-            )}
+            ) : null}
           </div>
 
-          {/* Action trigger footer */}
-          <div className="pt-4 border-t border-white/10 flex flex-col space-y-2">
-            <Button 
-              variant="primary" 
-              size="sm" 
-              onClick={handleFilterClick}
-              disabled={isScanning}
-              className="w-full flex items-center justify-center space-x-2 font-bold py-2.5 rounded-btn"
-            >
-              <span>Explore State Packages</span>
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </div>
+
         </div>
       </div>
 
@@ -348,7 +371,7 @@ export default function InteractiveMap({ selectedCountry, onSelectCountry }: Int
         </div>
         <button
           onClick={handleGPSActive}
-          disabled={isScanning}
+          disabled={isScanning || activePins.length === 0}
           className="inline-flex items-center space-x-2 text-caption font-bold text-secondary uppercase tracking-wider bg-dark-bg hover:bg-dark-bg/90 disabled:opacity-50 px-5 py-2.5 rounded-full border border-white/10 transition-colors shadow-soft cursor-pointer"
         >
           <Navigation className="w-4 h-4 fill-secondary" />

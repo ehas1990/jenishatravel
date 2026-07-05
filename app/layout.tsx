@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
@@ -27,16 +25,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full scroll-smooth">
-      <body className="min-h-full flex flex-col bg-white">
-        <Navbar />
-        {/* Padding-top to account for fixed/sticky navbar */}
-        <main className="flex-grow pt-[84px] md:pt-[96px]">
-          {children}
-        </main>
-        <Footer />
+    <html lang="en" className="h-full scroll-smooth" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-white" suppressHydrationWarning>
+        {children}
       </body>
     </html>
   );
 }
+
 

@@ -1,0 +1,103 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  STAFF
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  fullName     String
+  phone        String?
+  role         Role          @default(STAFF)
+  status       Status        @default(ACTIVE)
+  image        String?
+  logs         ActivityLog[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Destination {
+  id               String    @id @default(uuid())
+  name             String
+  slug             String    @unique
+  country          String
+  state            String?
+  shortDescription String
+  description      String
+  bannerImage      String
+  galleryImages    String[]  // PostgreSQL text array
+  popularPlaces    String[]  // PostgreSQL text array
+  bestTimeToVisit  String
+  mapUrl           String?
+  status           Status    @default(ACTIVE)
+  packages         Package[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Package {
+  id               String      @id @default(uuid())
+  name             String
+  slug             String      @unique
+  destinationId    String
+  destination      Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  category         String
+  duration         String
+  price            Float
+  discountPrice    Float?
+  shortDescription String
+  description      String
+  galleryImages    String[]    // PostgreSQL text array
+  thumbnail        String
+  inclusions       String[]    // PostgreSQL text array
+  exclusions       String[]    // PostgreSQL text array
+  itinerary        Json        // Array of { day: number, title: string, description: string }
+  availableSeats   Int
+  featured         Boolean     @default(false)
+  status           Status      @default(ACTIVE)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  details   String
+  ipAddress String?
+  createdAt DateTime @default(now())
+}

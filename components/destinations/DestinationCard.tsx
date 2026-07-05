@@ -1,101 +1,69 @@
 import React from 'react';
 import Link from 'next/link';
-import { Compass } from 'lucide-react';
-import { Destination } from '@/types';
-import { cn } from '@/lib/utils';
-import Card from '../ui/Card';
+import { Calendar } from 'lucide-react';
 
 interface DestinationCardProps {
-  destination: Destination;
-  isActive?: boolean;
-  onActive?: () => void;
+  destination: {
+    id: string;
+    name: string;
+    slug: string;
+    country: string;
+    state?: string | null;
+    shortDescription: string;
+    description: string;
+    bannerImage: string;
+    galleryImages?: string[];
+    popularPlaces?: string[];
+    bestTimeToVisit?: string;
+    status: string;
+  };
 }
 
-export default function DestinationCard({ destination, isActive = false, onActive }: DestinationCardProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    // Desktop: >=1024px -> hover interaction.
-    // Mobile/Tablet: <1024px -> tap interaction.
-    if (window.innerWidth < 1024) {
-      if (!isActive) {
-        e.preventDefault();
-        if (onActive) {
-          onActive();
-        }
-      }
-    }
-  };
+export default function DestinationCard({ destination }: DestinationCardProps) {
+  const attractionsCount = destination.popularPlaces?.length || 0;
+  const [imgSrc, setImgSrc] = React.useState(destination.bannerImage || '/hero-banner.jpg');
 
+  React.useEffect(() => {
+    setImgSrc(destination.bannerImage || '/hero-banner.jpg');
+  }, [destination.bannerImage]);
+  
   return (
     <Link 
-      href={`/destinations?country=${destination.country}`}
-      onClick={handleClick}
-      className="group block outline-none rounded-card"
+      href={`/packages?country=${encodeURIComponent(destination.country)}`}
+      className="group block outline-none overflow-hidden rounded-[24px] relative h-[380px] w-full border border-border/10 hover:shadow-hover hover:border-primary/20 transition-all duration-500 hover:-translate-y-1.5 cursor-pointer"
     >
-      <Card 
-        hoverEffect={false}
-        className={cn(
-          "relative h-96 w-full cursor-pointer overflow-hidden rounded-card border border-border/50",
-          isActive 
-            ? "-translate-y-2 shadow-hover border-primary/20" 
-            : "lg:group-hover:-translate-y-2 lg:group-hover:shadow-hover lg:group-hover:border-primary/20 group-focus-visible:-translate-y-2 group-focus-visible:shadow-hover group-focus-visible:border-primary/20"
-        )}
-        style={{ transition: 'all 0.45s ease' }}
-      >
-        {/* Background Image */}
-        <img
-          src={destination.image}
-          alt={destination.title}
-          className={cn(
-            "absolute inset-0 w-full h-full object-cover",
-            isActive ? "scale-105" : "lg:group-hover:scale-105 group-focus-visible:scale-105"
-          )}
-          style={{ transition: 'all 0.45s ease' }}
-          loading="lazy"
-        />
+      {/* Background Image */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imgSrc}
+        alt={destination.name}
+        onError={() => setImgSrc('/hero-banner.jpg')}
+        className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 lg:group-hover:scale-105"
+        loading="lazy"
+      />
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+      {/* Content overlay */}
+      <div className="absolute inset-0 p-8 flex flex-col justify-end text-white z-10">
+        <span className="text-[12px] font-bold text-[#F59E0B] uppercase tracking-widest block">
+          {destination.state ? destination.state.toUpperCase() : destination.country.toUpperCase()}
+        </span>
         
-        {/* Gradient Overlay */}
-        <div 
-          className={cn(
-            "absolute inset-0",
-            isActive 
-              ? "bg-gradient-to-t from-dark-bg/95 via-dark-bg/40 to-transparent" 
-              : "bg-gradient-to-t from-dark-bg/60 via-dark-bg/10 to-transparent lg:group-hover:from-dark-bg/95 lg:group-hover:via-dark-bg/40 group-focus-visible:from-dark-bg/95 group-focus-visible:via-dark-bg/40"
-          )}
-          style={{ transition: 'all 0.45s ease' }}
-        />
+        <h3 className="text-[22px] font-bold text-white leading-tight mt-1.5 font-heading">
+          {destination.name}
+        </h3>
+        
+        <p className="text-[14px] text-white/80 leading-relaxed mt-2.5 line-clamp-3 font-normal">
+          {destination.shortDescription}
+        </p>
 
-        {/* Text Details overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-10 flex flex-col justify-end h-full">
-          <div className="space-y-1">
-            <span className="text-[12px] font-bold text-secondary uppercase tracking-widest">
-              {destination.country}
-            </span>
-            <h3 className="text-card-title font-extrabold leading-tight">
-              {destination.title}
-            </h3>
-          </div>
-          
-          {/* Animated Expandable Content */}
-          <div 
-            className={cn(
-              "space-y-3",
-              isActive 
-                ? "max-h-[150px] opacity-100 translate-y-0 mt-3 pointer-events-auto" 
-                : "max-h-0 opacity-0 translate-y-5 overflow-hidden pointer-events-none lg:group-hover:max-h-[150px] lg:group-hover:opacity-100 lg:group-hover:translate-y-0 lg:group-hover:mt-3 lg:group-hover:pointer-events-auto group-focus-visible:max-h-[150px] group-focus-visible:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:mt-3 group-focus-visible:pointer-events-auto"
-            )}
-            style={{ transition: 'all 0.45s ease' }}
-          >
-            <p className="text-caption text-slate-200 line-clamp-2 leading-relaxed">
-              {destination.description}
-            </p>
-
-            <div className="flex items-center space-x-2 text-caption font-semibold text-primary pt-2 border-t border-white/10">
-              <Compass className="w-4 h-4 text-secondary animate-spin-slow" />
-              <span className="text-white">{destination.attractionsCount} Premium Attractions</span>
-            </div>
-          </div>
+        <div className="flex items-center gap-2 text-[14px] font-semibold text-white mt-4 pt-3 border-t border-white/10">
+          <Calendar className="w-4 h-4 text-[#F59E0B]" />
+          <span>{destination.bestTimeToVisit ? destination.bestTimeToVisit : "Best Time Not Available"}</span>
         </div>
-      </Card>
+      </div>
     </Link>
   );
 }

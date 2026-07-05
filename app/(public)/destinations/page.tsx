@@ -2,23 +2,40 @@
 
 import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Search, Compass, Map, HelpCircle } from 'lucide-react';
+import { Compass, MapPin, Calendar, HelpCircle, Loader2 } from 'lucide-react';
 import Container from '@/components/layout/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Button from '@/components/ui/Button';
 import DestinationsGrid from '@/components/destinations/DestinationsGrid';
 import Accordion from '@/components/ui/Accordion';
 import InteractiveMap from '@/components/destinations/InteractiveMap';
-import { DESTINATIONS } from '@/constants/data';
+import { getDestinations } from '@/actions/destinations';
 import { cn } from '@/lib/utils';
 
 const countries = ['All', 'Kerala', 'Tamil Nadu', 'Kashmir', 'Rajasthan', 'Goa', 'Ladakh'];
+
+function DestinationCardSkeleton() {
+  return (
+    <div className="bg-slate-100 border border-border/40 rounded-[24px] h-[380px] w-full animate-pulse flex flex-col justify-end p-8 gap-3">
+      <div className="h-3.5 w-1/4 bg-slate-200 rounded-[4px]" />
+      <div className="h-7 w-3/4 bg-slate-200 rounded-[6px]" />
+      <div className="h-4 w-full bg-slate-200 rounded-[4px]" />
+      <div className="h-4 w-2/3 bg-slate-200 rounded-[4px]" />
+      <div className="h-4 w-1/2 bg-slate-200 rounded-[4px] mt-3 pt-3 border-t border-slate-200/40" />
+    </div>
+  );
+}
 
 function DestinationsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('All');
+  
+  // Database states
+  const [destinations, setDestinations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const countryParam = searchParams.get('country') || 'All';
 
@@ -28,6 +45,32 @@ function DestinationsPageContent() {
       setSelectedCountry(countryParam);
     }
   }, [countryParam]);
+
+  // Fetch active destinations from server action
+  const fetchDestinationsData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await getDestinations({
+        status: 'ACTIVE',
+        limit: 100, // Fetch all active destinations
+      });
+      if (res.error) {
+        setError(res.error);
+      } else {
+        setDestinations(res.destinations || []);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Failed to establish database connection. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDestinationsData();
+  }, []);
 
   const handleCountrySelect = (country: string) => {
     setSelectedCountry(country);
@@ -42,23 +85,52 @@ function DestinationsPageContent() {
 
   // Filter destinations based on search query and tab selection
   const filteredDestinations = useMemo(() => {
-    return DESTINATIONS.filter((dest) => {
-      const matchesCountry = selectedCountry === 'All' || dest.country.toLowerCase() === selectedCountry.toLowerCase();
-      const matchesSearch = dest.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    return destinations.filter((dest) => {
+      const matchesCountry = selectedCountry === 'All' || 
+                             dest.country.toLowerCase() === selectedCountry.toLowerCase() ||
+                             (dest.state && dest.state.toLowerCase() === selectedCountry.toLowerCase());
+      const matchesSearch = dest.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             dest.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            dest.country.toLowerCase().includes(searchQuery.toLowerCase());
+                            dest.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (dest.state && dest.state.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesCountry && matchesSearch;
     });
-  }, [searchQuery, selectedCountry]);
+  }, [destinations, searchQuery, selectedCountry]);
 
   // Aggregate destination FAQs
   const destinationFaqs = useMemo(() => {
-    return DESTINATIONS.flatMap((d) => d.faqs || []).map((faq, i) => ({
+    if (destinations.length === 0) {
+      return [
+        {
+          id: 1,
+          title: "When is the best season to travel to India's luxury regions?",
+          content: "The winter months from October to March offer cool, pleasant weather across most destinations, including Kerala, Rajasthan, and Tamil Nadu. The monsoons (June to September) are ideal for wellness and Ayurvedic retreats."
+        },
+        {
+          id: 2,
+          title: "What bespoke logistics and transports are arranged for guests?",
+          content: "We organize private helicopter charters to high-altitude areas like Ladakh, premium catamaran or private yacht cruises in Goa, and chartered luxury SUV transfers across all destinations."
+        }
+      ];
+    }
+    
+    return destinations.flatMap((d) => {
+      return [
+        {
+          title: `What is the best season to visit ${d.name}?`,
+          content: `The best time to visit ${d.name} in ${d.country} is during ${d.bestTimeToVisit || 'the cooler months of the year'} when the weather is most favorable.`
+        },
+        {
+          title: `What attractions should I not miss in ${d.name}?`,
+          content: `Highly recommended luxury attractions in ${d.name} include: ${d.popularPlaces?.join(', ') || 'heritage landmarks and scenic spots'}.`
+        }
+      ];
+    }).map((faq, i) => ({
       id: i,
-      title: faq.question,
-      content: faq.answer,
+      title: faq.title,
+      content: faq.content,
     }));
-  }, []);
+  }, [destinations]);
 
   return (
     <div className="flex flex-col w-full pb-24">
@@ -86,52 +158,41 @@ function DestinationsPageContent() {
             align="center"
           />
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-light-gray/40 border border-border/50 p-6 rounded-card shadow-soft">
-            {/* Search Input */}
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-paragraph" />
-              <input
-                type="text"
-                placeholder="Search states, cities or themes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border border-border rounded-btn pl-12 pr-4 py-3 text-small text-heading focus:outline-none focus:border-primary transition-colors shadow-soft"
-              />
-            </div>
 
-            {/* State Tabs */}
-            <div className="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end overflow-x-auto scrollbar-none">
-              {countries.map((country) => {
-                const isActive = selectedCountry.toLowerCase() === country.toLowerCase();
-                return (
-                  <button
-                    key={country}
-                    onClick={() => handleCountrySelect(country)}
-                    className={cn(
-                      "px-5 py-2.5 rounded-btn text-caption font-semibold transition-all cursor-pointer whitespace-nowrap",
-                      isActive
-                        ? "bg-primary text-white shadow-soft"
-                        : "bg-white border border-border text-paragraph hover:text-heading hover:border-primary-hover"
-                    )}
-                  >
-                    {country}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </Container>
       </section>
 
       {/* Destination Grid */}
-      <section className="section-pad">
+      <section className="pt-6 pb-16 bg-white">
         <Container>
-          {filteredDestinations.length > 0 ? (
+          {loading ? (
+            /* Loading State with Skeleton cards */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(6)].map((_, idx) => (
+                <DestinationCardSkeleton key={idx} />
+              ))}
+            </div>
+          ) : error ? (
+            /* Error State with retry option */
+            <div className="text-center py-16 space-y-5 max-w-md mx-auto">
+              <HelpCircle className="w-16 h-16 text-rose-400 mx-auto animate-bounce" />
+              <h3 className="text-[20px] text-heading font-bold">Failed to Load Collections</h3>
+              <p className="text-[14px] text-paragraph leading-relaxed font-normal">
+                {error}
+              </p>
+              <Button variant="primary" size="md" onClick={fetchDestinationsData} className="rounded-xl px-6 flex items-center justify-center gap-2 mx-auto">
+                <Loader2 className="w-4 h-4 hidden" />
+                Retry Connection
+              </Button>
+            </div>
+          ) : filteredDestinations.length > 0 ? (
+            /* Actual Destinations Display Grid */
             <DestinationsGrid
               destinations={filteredDestinations}
-              className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fadeIn"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fadeIn"
             />
           ) : (
+            /* Empty State */
             <div className="text-center py-16 space-y-4">
               <Compass className="w-16 h-16 text-slate-300 mx-auto animate-pulse" />
               <h3 className="text-card-title text-heading font-bold">No Destinations Found</h3>
@@ -147,7 +208,7 @@ function DestinationsPageContent() {
       </section>
 
       {/* Map Section */}
-      <section className="section-pad bg-light-gray/40 border-y border-border/50">
+      <section className="py-12 bg-light-gray/40">
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Map copy text */}
@@ -177,6 +238,7 @@ function DestinationsPageContent() {
               <InteractiveMap 
                 selectedCountry={selectedCountry} 
                 onSelectCountry={handleCountrySelect} 
+                destinations={destinations}
               />
             </div>
           </div>
@@ -191,7 +253,7 @@ function DestinationsPageContent() {
             title="Destination Advice & Tips"
             subtitle="Get essential answers regarding travel season timing, language support, and entry clearances."
           />
-          <Accordion items={destinationFaqs.slice(0, 5)} />
+          <Accordion items={destinationFaqs.slice(0, 6)} />
         </Container>
       </section>
     </div>

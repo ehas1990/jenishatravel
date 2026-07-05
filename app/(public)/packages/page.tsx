@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { SlidersHorizontal, ArrowUpDown, Compass, Search, Calendar, Landmark, Coins } from 'lucide-react';
+import { Compass, Calendar } from 'lucide-react';
 import Container from '@/components/layout/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Button from '@/components/ui/Button';
@@ -135,127 +135,12 @@ function TourPackagesPageContent() {
       </section>
 
       {/* Main Catalog Section */}
-      <section className="section-pad pt-16">
+      <section className="py-10">
         <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            
-            {/* Sidebar Filter Panel (Left) */}
-            <div className="lg:col-span-3 bg-white border border-border/50 rounded-card p-6 shadow-soft space-y-6">
-              <div className="flex items-center space-x-2 pb-3 border-b border-border">
-                <SlidersHorizontal className="w-5 h-5 text-primary" />
-                <h3 className="font-heading font-bold text-[18px] text-heading">Filter Options</h3>
-              </div>
+          <div className="w-full">
+            {/* Catalog Grid & Header Sort */}
+            <div className="w-full space-y-8">
 
-              {/* Search Bar */}
-              <div className="space-y-2">
-                <label className="text-caption font-bold text-heading uppercase tracking-wider">Search Keyword</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-paragraph" />
-                  <input
-                    type="text"
-                    placeholder="Search tours..."
-                    value={searchQuery}
-                    onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                    className="w-full bg-light-gray/40 border border-border rounded-btn pl-10 pr-3 py-2.5 text-caption text-heading focus:outline-none focus:border-primary transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* State Selector */}
-              <div className="space-y-2">
-                <label className="text-caption font-bold text-heading uppercase tracking-wider">State Region</label>
-                <select
-                  value={selectedCountry}
-                  onChange={(e) => { setSelectedCountry(e.target.value); setCurrentPage(1); }}
-                  className="w-full bg-light-gray/40 border border-border rounded-btn px-3 py-2.5 text-caption text-heading font-semibold focus:outline-none focus:border-primary cursor-pointer"
-                >
-                  {countries.map((c) => (
-                    <option key={c} value={c}>{c === 'All' ? 'All States' : c}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Category Selector */}
-              <div className="space-y-2">
-                <label className="text-caption font-bold text-heading uppercase tracking-wider">Voyage Category</label>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
-                  className="w-full bg-light-gray/40 border border-border rounded-btn px-3 py-2.5 text-caption text-heading font-semibold focus:outline-none focus:border-primary cursor-pointer"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Duration Selector */}
-              <div className="space-y-2">
-                <label className="text-caption font-bold text-heading uppercase tracking-wider">Duration</label>
-                <select
-                  value={selectedDuration}
-                  onChange={(e) => { setSelectedDuration(e.target.value); setCurrentPage(1); }}
-                  className="w-full bg-light-gray/40 border border-border rounded-btn px-3 py-2.5 text-caption text-heading font-semibold focus:outline-none focus:border-primary cursor-pointer"
-                >
-                  {durations.map((dur) => (
-                    <option key={dur.value} value={dur.value}>{dur.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Budget Range Slider */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-baseline">
-                  <label className="text-caption font-bold text-heading uppercase tracking-wider">Max Budget</label>
-                  <span className="text-caption font-bold text-primary font-mono">${priceRange}</span>
-                </div>
-                <input
-                  type="range"
-                  min="2000"
-                  max="5000"
-                  step="100"
-                  value={priceRange}
-                  onChange={(e) => { setPriceRange(Number(e.target.value)); setCurrentPage(1); }}
-                  className="w-full accent-primary cursor-pointer"
-                />
-                <div className="flex justify-between text-[11px] text-paragraph font-mono">
-                  <span>$2,000</span>
-                  <span>$5,000</span>
-                </div>
-              </div>
-
-              {/* Clear button */}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleResetFilters}
-                className="w-full py-2.5 border border-border text-paragraph hover:text-heading hover:border-heading"
-              >
-                Clear Filters
-              </Button>
-            </div>
-
-            {/* Catalog Grid & Header Sort (Right) */}
-            <div className="lg:col-span-9 space-y-8">
-              {/* Header Sort */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border/80">
-                <p className="text-small text-paragraph font-normal">
-                  Showing <span className="font-bold text-heading">{sortedPackages.length}</span> luxury tours
-                </p>
-                <div className="flex items-center space-x-2 w-full sm:w-auto">
-                  <ArrowUpDown className="w-4 h-4 text-paragraph" />
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-transparent border-none text-small font-semibold text-heading focus:outline-none cursor-pointer"
-                  >
-                    <option value="featured">Sort by: Featured</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="rating">Rating: Highest</option>
-                  </select>
-                </div>
-              </div>
 
               {/* Packages Cards Grid */}
               {paginatedPackages.length > 0 ? (

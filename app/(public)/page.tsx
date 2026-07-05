@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Globe, Award, Sparkles, Compass } from 'lucide-react';
 import Hero from '@/components/home/Hero';
@@ -10,12 +12,39 @@ import Button from '@/components/ui/Button';
 import DestinationsGrid from '@/components/destinations/DestinationsGrid';
 import PackageCard from '@/components/packages/PackageCard';
 import Card from '@/components/ui/Card';
-import { DESTINATIONS, PACKAGES } from '@/constants/data';
+import { getDestinations } from '@/actions/destinations';
+import { PACKAGES } from '@/constants/data';
 
 export default function Home() {
-  // Get featured items
-  const featuredDestinations = DESTINATIONS.filter((d) => d.featured).slice(0, 2);
+  const [featuredDestinations, setFeaturedDestinations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const featuredPackages = PACKAGES.filter((p) => p.featured).slice(0, 3);
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const res = await getDestinations({
+          status: 'ACTIVE',
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
+          limit: 2,
+        });
+        if (res.error) {
+          setError(res.error);
+        } else {
+          setFeaturedDestinations(res.destinations || []);
+        }
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load destinations.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDestinations();
+  }, []);
 
   return (
     <div className="flex flex-col w-full">
@@ -32,10 +61,33 @@ export default function Home() {
             subtitle="Explore our selection of the world's most exquisite and visually stunning locations, curated for luxury enthusiasts."
           />
 
-          <DestinationsGrid
-            destinations={featuredDestinations}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8"
-          />
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-slate-100 border border-border/40 rounded-[24px] h-[380px] w-full animate-pulse flex flex-col justify-end p-8 gap-3">
+                <div className="h-3.5 w-1/4 bg-slate-200 rounded-[4px]" />
+                <div className="h-7 w-3/4 bg-slate-200 rounded-[6px]" />
+                <div className="h-4 w-full bg-slate-200 rounded-[4px]" />
+                <div className="h-4 w-2/3 bg-slate-200 rounded-[4px]" />
+                <div className="h-4 w-1/2 bg-slate-200 rounded-[4px] mt-3 pt-3 border-t border-slate-200/40" />
+              </div>
+              <div className="bg-slate-100 border border-border/40 rounded-[24px] h-[380px] w-full animate-pulse flex flex-col justify-end p-8 gap-3">
+                <div className="h-3.5 w-1/4 bg-slate-200 rounded-[4px]" />
+                <div className="h-7 w-3/4 bg-slate-200 rounded-[6px]" />
+                <div className="h-4 w-full bg-slate-200 rounded-[4px]" />
+                <div className="h-4 w-2/3 bg-slate-200 rounded-[4px]" />
+                <div className="h-4 w-1/2 bg-slate-200 rounded-[4px] mt-3 pt-3 border-t border-slate-200/40" />
+              </div>
+            </div>
+          ) : error || featuredDestinations.length === 0 ? (
+            <div className="text-center py-12 text-paragraph font-normal">
+              No destinations available.
+            </div>
+          ) : (
+            <DestinationsGrid
+              destinations={featuredDestinations}
+              className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            />
+          )}
 
           <div className="text-center mt-12">
             <Link href="/destinations">
@@ -145,4 +197,3 @@ export default function Home() {
     </div>
   );
 }
-
