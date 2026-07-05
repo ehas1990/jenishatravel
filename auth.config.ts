@@ -3,6 +3,7 @@ import type { NextAuthConfig } from "next-auth";
 export const authConfig = {
   providers: [], // Credentials provider added in auth.ts
   callbacks: {
+    authorized: () => true,
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id as string;
