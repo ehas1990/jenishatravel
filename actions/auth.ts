@@ -23,6 +23,16 @@ export async function loginAction(prevState: any, formData: FormData) {
     });
     return { success: true };
   } catch (error) {
+    // Re-throw Next.js redirect errors so that Next.js handles the redirection correctly.
+    if (
+      error instanceof Error && 
+      (error.message === "NEXT_REDIRECT" || 
+       (error as any).digest === "NEXT_REDIRECT" || 
+       (error as any).digest?.startsWith("NEXT_REDIRECT"))
+    ) {
+      throw error;
+    }
+
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
